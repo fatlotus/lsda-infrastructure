@@ -28,6 +28,9 @@ NEOF
 git clone git://github.com/sitaramc/gitolite || true
 gitolite/src/gitolite setup -pk jeremy.pub
 
+# Install a password for the CGI script to connect to itself
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ""
+
 # Clean up
 rm -rf jeremy.pub
 

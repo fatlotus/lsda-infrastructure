@@ -24,6 +24,9 @@ LogLevel debug
   AuthName "Restricted Area"
   AuthLDAPURL "ldaps://ldap.uchicago.edu/ou=people,dc=uchicago,dc=edu?uid?one" STARTTLS
   Require valid-user
+  
+  Options ExecCGI
+  AddHandler cgi-script .cgi
 </Location>
 EOF
 
@@ -34,14 +37,13 @@ TLS_CACERT /etc/ssl/certs/ca-certificates.crt
 BASE dc=uchicago,dc=edu
 EOF
 
-# Configure the list of students.
-cat > /etc/lighttpd/allowed_users.list <<EOF
-jarcher
-EOF
-
 chown nobody /etc/lighttpd/allowed_users.list
 chmod 0400 /etc/lighttpd/allowed_users.list
 
 a2enmod authnz_ldap
+
+curl https://raw.github.com/fatlotus/lsda-installation/master/generate-ssh-key.cgi > /var/www/generate-ssh-key.cgi
+chmod u+x /var/www/generate-ssh-key.cgi
+chown git /var/www/generate-ssh-key.cgi
 
 /etc/init.d/apache2 restart || /etc/init.d/apache2 restart
