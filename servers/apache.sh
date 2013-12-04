@@ -31,7 +31,7 @@ User git
   AuthType Basic
   AuthName "CNetID"
   AuthLDAPURL "ldaps://ldap.uchicago.edu/ou=people,dc=uchicago,dc=edu?uid?one" STARTTLS
-  Require user jarcher cioc
+  Require user jarcher cioc lafferty borja howens
   
   Options ExecCGI
   AddHandler cgi-script .cgi
