@@ -10,6 +10,7 @@ set -e -x
 
 # Prepare the system for install.
 useradd -m -r git || true
+DEBIAN_FRONTEND=noninteractive apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y git python
 
 cd /home/git
