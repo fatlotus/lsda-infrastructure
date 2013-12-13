@@ -18,24 +18,30 @@ cat > /etc/apache2/httpd.conf <<EOF
 LDAPTrustedGlobalCert CA_BASE64 /etc/ssl/certs/ca-certificates.crt
 User git
 
+Listen 0.0.0.0:1337
+
 <VirtualHost *:443>
   SSLEngine on
   SSLCertificateFile /etc/apache2/ssl/apache.crt
   SSLCertificateKeyFile /etc/apache2/ssl/apache.key
   
   DocumentRoot /var/www
+  
+  <Location />
+    AuthBasicProvider ldap
+    AuthType Basic
+    AuthName "CNetID"
+    AuthLDAPURL "ldaps://ldap.uchicago.edu/ou=people,dc=uchicago,dc=edu?uid?one" STARTTLS
+    Require user jarcher cioc lafferty borja howens
+  
+    Options ExecCGI
+    AddHandler cgi-script .cgi
+  </Location>
 </VirtualHost>
 
-<Location />
-  AuthBasicProvider ldap
-  AuthType Basic
-  AuthName "CNetID"
-  AuthLDAPURL "ldaps://ldap.uchicago.edu/ou=people,dc=uchicago,dc=edu?uid?one" STARTTLS
-  Require user jarcher cioc lafferty borja howens
-  
-  Options ExecCGI
-  AddHandler cgi-script .cgi
-</Location>
+<VirtualHost *:1337>
+  DocumentRoot /home/git/repositories/
+</VirtualHost>
 EOF
 
 # Configure LDAP.
