@@ -27,13 +27,15 @@ author "Jeremy Archer <jarcher@uchicago.edu>"
 
 respawn
 
+start on startup
+
 setuid lsda
 setgid lsda
 
 script
   python /worker/management.py \\
-    --amqp=10.212.66.16 \\
-    --zookeeper=10.212.66.16
+    --amqp=amqp.lsda.cs.uchicago.edu \\
+    --zookeeper=zookeeper.lsda.cs.uchicago.edu
 end script
 EOF
 
