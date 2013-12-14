@@ -16,8 +16,9 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y git python
 cd /home/git
 
 # Fetch the IPython submission script.
-git clone https://github.com/fatlotus/lsda-management.git || true
-pip install -r lsda-management/submitter_requrements.txt
+rm -rf lsda-management
+git clone https://github.com/fatlotus/lsda-management.git
+pip install -r lsda-management/submitter_requrements.txt 2>/dev/null
 
 su - git <<EOF
 
@@ -32,11 +33,14 @@ NEOF
 rm -rf ~/.ssh/authorized_keys*
 
 # Fetch Gitolite
-git clone git://github.com/sitaramc/gitolite || true
+rm -rf gitolite
+git clone git://github.com/sitaramc/gitolite
 
 # Create a triggering post-receive hook.
 mkdir -p ~/.gitolite/hooks
-ln -s /home/git/lsda-management/submitter.py ~/.gitolite/hooks/post-receive
+rm -rf ~/.gitolite/hooks/common/post-update
+ln -s /home/git/lsda-management/submitter.py \\
+  ~/.gitolite/hooks/common/post-update
 
 # Install Gitolite globally.
 gitolite/src/gitolite setup -pk jeremy.pub
