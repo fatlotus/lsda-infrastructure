@@ -15,6 +15,10 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y git python
 
 cd /home/git
 
+# Fetch the IPython submission script.
+git clone https://github.com/fatlotus/lsda-management.git || true
+pip install -r lsda-management/submitter_requrements.txt
+
 su - git <<EOF
 
 set -e -x
@@ -25,10 +29,16 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCpZxfYDGv07zdwv2Qa7SLIUi74rhR6D7y41uVbo6SU
 NEOF
 
 # Wipe out any existing keys (since we mess with this file later)
-rm -rf ~/.ssh/authorized_keys
+rm -rf ~/.ssh/authorized_keys*
 
-# Fetch and Install Gitolite
+# Fetch Gitolite
 git clone git://github.com/sitaramc/gitolite || true
+
+# Create a triggering post-receive hook.
+mkdir -p ~/.gitolite/hooks
+ln -s /home/git/lsda-management/submitter.py ~/.gitolite/hooks/post-receive
+
+# Install Gitolite globally.
 gitolite/src/gitolite setup -pk jeremy.pub
 
 # Install a password for the CGI script to connect to itself
