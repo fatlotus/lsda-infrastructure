@@ -37,6 +37,10 @@ Listen 0.0.0.0:1337
     Options ExecCGI
     AddHandler cgi-script .cgi
   </Location>
+  
+  <Location /gitlist>
+    Require user jarcher lafferty
+  </Location>
 </VirtualHost>
 
 <VirtualHost *:1337>

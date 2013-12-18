@@ -11,7 +11,7 @@ set -e -x
 # Prepare the system for install.
 useradd -m -r git || true
 DEBIAN_FRONTEND=noninteractive apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y git python
+DEBIAN_FRONTEND=noninteractive apt-get install -y git python php5
 
 cd /home/git
 
@@ -19,6 +19,48 @@ cd /home/git
 rm -rf lsda-management
 git clone https://github.com/fatlotus/lsda-management.git
 pip install -r lsda-management/submitter_requrements.txt 2>/dev/null
+
+# Install Gitlist
+rm -rf /var/www/gitlist || true
+wget https://s3.amazonaws.com/gitlist/gitlist-0.4.0.tar.gz
+tar xvf gitlist-0.4.0.tar.gz -C /var/www
+cat > /var/www/gitlist/config.ini <<EOF
+[git]
+client = '/usr/bin/git';
+default_branch = 'master';
+repositories[] = '/home/git/repositories';
+
+[app]
+debug = false
+cache = true
+
+[Date]
+timezone = CST
+EOF
+
+# Ensure that Gitlist works in a subdirectory.
+cat > /var/www/gitlist/.htaccess <<EOF
+
+<IfModule mod_rewrite.c>
+  Options -MultiViews SymLinksIfOwnerMatch
+
+  RewriteEngine On
+  RewriteBase /gitlist
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php [L,NC]
+</IfModule>
+
+<Files config.ini>
+  Order Allow,Deny
+  Deny from All
+</Files>
+
+EOF
+mkdir -p /var/www/gitlist/cache
+chown git:git /var/www/gitlist/cache
+chmod 0777 /var/www/gitlist/cache
+rm gitlist-0.4.0.tar.gz
 
 su - git <<EOF
 
