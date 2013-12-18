@@ -39,4 +39,4 @@ script
 end script
 EOF
 
-start lsda
+restart lsda || start lsda
