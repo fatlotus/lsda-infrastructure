@@ -10,16 +10,23 @@ set -e -x
 
 # Prepare system for install.
 useradd -m -r lsda || true
+useradd -m -r sandbox || true
 DEBIAN_FRONTEND=noninteractive apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y git python python-distribute \
   python-pip build-essential python-dev
 
+# Create worker environment.
 rm -rf /worker || true
 mkdir -p /worker
 cd /worker
 git clone https://github.com/fatlotus/lsda-management.git .
 pip install -r /worker/requirements.txt
 chown -R lsda:lsda .
+
+# Configure security.
+iptables -A OUTPUT -m state -m owner --state ESTABLISHED,RELATED \
+  --uid-owner sandbox -j REJECT
+iptables -A OUTPUT -m owner --uid-owner sandbox -j REJECT
 
 cat > /etc/init/lsda.conf <<EOF
 description "Runs an Python LSDA Worker Process"
