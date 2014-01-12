@@ -19,11 +19,13 @@ LDAPTrustedGlobalCert CA_BASE64 /etc/ssl/certs/ca-certificates.crt
 User git
 
 Listen 0.0.0.0:1337
+NameVirtualHost *:443
 
 <VirtualHost *:443>
   SSLEngine on
   SSLCertificateFile /etc/apache2/ssl/apache.crt
   SSLCertificateKeyFile /etc/apache2/ssl/apache.key
+  ServerName lsda.cs.uchicago.edu
   
   DocumentRoot /var/www
   
@@ -37,14 +39,34 @@ Listen 0.0.0.0:1337
     Options ExecCGI
     AddHandler cgi-script .cgi
   </Location>
-  
-  <Location /gitlist>
-    Require user jarcher lafferty
-  </Location>
 </VirtualHost>
 
 <VirtualHost *:1337>
   DocumentRoot /home/git/repositories/
+  
+  Options ExecCGI
+  AddHandler cgi-script .cgi
+</VirtualHost>
+
+<VirtualHost *:443>
+  SSLEngine on
+  SSLCertificateFile /etc/apache2/ssl/apache.crt
+  SSLCertificateKeyFile /etc/apache2/ssl/apache.key
+  ServerName grading.lsda.cs.uchicago.edu
+  
+  DocumentRoot /var/gitlist
+  RewriteEngine on
+  RewriteCond /var/gitlist/%{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ /var/gitlist/index.php
+  
+  <Location />
+    AuthBasicProvider ldap
+    AuthType Basic
+    AuthName "CNetID"
+    AuthLDAPURL "ldaps://ldap.uchicago.edu/ou=people,dc=uchicago,dc=edu?uid?one" STARTTLS
+    
+    Require user jarcher lafferty
+  </Location>
 </VirtualHost>
 EOF
 
@@ -124,6 +146,7 @@ EOF
 
 a2enmod authnz_ldap
 a2enmod ssl
+a2enmod rewrite
 
 mkdir -p /var/www
 
