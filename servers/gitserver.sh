@@ -71,7 +71,7 @@ git clone git://github.com/sitaramc/gitolite
 
 # Create a triggering post-receive VREF.
 ln -s /home/git/lsda-management/submitter.py \\
-  ~/gitolite/src/VREF/submit_to_lsda
+  ~/gitolite/hooks/post-receive
 
 # Install a quota update VREF.
 cat > ~/gitolite/src/VREF/quota_copier <<EOF2
