@@ -10,7 +10,8 @@ set -e -x
 
 # Prepare system for install.
 DEBIAN_FRONTEND=noninteractive apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get -y install zookeeper zookeeperd
+DEBIAN_FRONTEND=noninteractive apt-get -y install zookeeper zookeeperd \
+  zookeeper-bin
 
 cat > /etc/zookeeper/conf/zoo.cfg <<EOF
 tickTime=2000

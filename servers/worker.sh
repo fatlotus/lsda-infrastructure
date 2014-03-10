@@ -14,13 +14,15 @@ useradd -m -r sandbox || true
 DEBIAN_FRONTEND=noninteractive apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y git python python-distribute \
-  python-pip build-essential python-dev
+  python-pip build-essential python-dev python-numpy python-scipy \
+  python-matplotlib python-pandas python-sympy
 
 # Create worker environment.
 rm -rf /worker || true
 mkdir -p /worker
 cd /worker
 git clone https://github.com/fatlotus/lsda-management.git .
+git clone https://github.com/fatlotus/lsda-data-access-layer.git dal
 
 # Allow lsda to jump into the sandbox.
 cat > /etc/sudoers.d/lsda <<EOF
@@ -35,15 +37,23 @@ chown -R lsda:lsda .
 cat > /etc/network/if-pre-up.d/sandbox-firewall <<EOF
 #!/bin/bash
 iptables -F
-iptables -A OUTPUT -m state -m owner --state ESTABLISHED,RELATED \
-  --uid-owner sandbox -j ACCEPT
-iptables -A OUTPUT -m owner --uid-owner sandbox -p tcp --dport 1024:65535 \
-  -d 0.0.0.0 -j ACCEPT
-iptables -A OUTPUT -m owner --uid-owner sandbox -p tcp --dport 1024:65535 \
-  -d 127.0.0.1 -j ACCEPT
 EOF
 chmod +x /etc/network/if-pre-up.d/sandbox-firewall
 /etc/network/if-pre-up.d/sandbox-firewall
+
+# Configure the data access layer.
+cat > /worker/dalconfig.json <<EOF
+{
+   "tinyimages": {
+      "meta-bucket": "ml-tinyimages-metadata",
+      "bucket": "ml-tinyimages"
+   },
+   "cache": {
+      "path": "/tmp",
+      "size": "unused"
+   }
+}
+EOF
 
 # Configure daemons
 cat > /etc/init/lsda.conf <<EOF

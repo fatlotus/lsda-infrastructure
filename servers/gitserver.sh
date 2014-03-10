@@ -69,7 +69,11 @@ rm -rf ~/.ssh/authorized_keys*
 rm -rf gitolite
 git clone git://github.com/sitaramc/gitolite
 
+# Install Gitolite globally the first time.
+gitolite/src/gitolite setup -pk jeremy.pub
+
 # Create a triggering post-receive VREF.
+mkdir -p ~/gitolite/hooks/post-receive
 ln -s /home/git/lsda-management/submitter.py \\
   ~/gitolite/hooks/post-receive
 
