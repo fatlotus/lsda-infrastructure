@@ -50,9 +50,14 @@ cat > /worker/dalconfig.json <<EOF
       "bucket": "ml-tinyimages"
    },
    "cache": {
-      "path": "/tmp",
+      "path": "./tmp",
       "size": "unused"
-   }
+   },
+   "system": {
+     "local": false
+   },
+   "aws_access_key_id": "AKIAICGBF45H6KZUT5DA",
+   "aws_secret_access_key": "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"
 }
 EOF
 
