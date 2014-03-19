@@ -15,7 +15,7 @@ DEBIAN_FRONTEND=noninteractive apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y git python python-distribute \
   python-pip build-essential python-dev python-numpy python-scipy \
-  python-matplotlib python-pandas python-sympy libfftw3-dev
+  python-matplotlib python-pandas python-sympy libfftw3-dev python-matplotlib
 
 # Create worker environment.
 rm -rf /worker || true
