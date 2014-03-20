@@ -37,7 +37,7 @@ Listen 0.0.0.0:1337
     AuthType Basic
     AuthName "CNetID"
     AuthLDAPURL "ldaps://ldap.uchicago.edu/ou=people,dc=uchicago,dc=edu?uid?one" STARTTLS
-    Require user jarcher cioc lafferty
+    Require user jarcher cioc lafferty qinqing saltern
   </Location>
   
   <Location /cgi-bin>
