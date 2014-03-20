@@ -55,9 +55,7 @@ cat > /worker/dalconfig.json <<EOF
    },
    "system": {
      "local": false
-   },
-   "aws_access_key_id": "AKIAICGBF45H6KZUT5DA",
-   "aws_secret_access_key": "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"
+   }
 }
 EOF
 
