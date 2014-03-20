@@ -33,6 +33,7 @@ chmod 0440 /etc/sudoers.d/lsda
 pip install -r /worker/requirements.txt
 pip install pyleargist # pyleargist depends on Cython to build.
 chown -R lsda:lsda .
+chown lsda:lsda /mnt
 
 # Configure security.
 cat > /etc/network/if-pre-up.d/sandbox-firewall <<EOF
