@@ -21,9 +21,6 @@ EOF
 chmod 0440 /etc/sudoers.d/lsda
 cat /etc/sudoers.d/lsda
 
-# Ensure that the above actually works.
-sudo -u lsda sudo /bin/mount /mnt
-
 # Install requisite software.
 DEBIAN_FRONTEND=noninteractive apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
