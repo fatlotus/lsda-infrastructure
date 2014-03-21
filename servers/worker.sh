@@ -11,6 +11,20 @@ set -e -x
 # Prepare system for install.
 useradd -m -r lsda || true
 useradd -m -r sandbox || true
+
+# Allow lsda to jump into the sandbox.
+cat > /etc/sudoers.d/lsda <<EOF
+lsda ALL=(root) NOPASSWD: /worker/sandbox.py *
+lsda ALL=(root) NOPASSWD: /bin/chown lsda\:lsda /mnt
+lsda ALL=(root) NOPASSWD: /bin/mount /mnt
+EOF
+chmod 0440 /etc/sudoers.d/lsda
+cat /etc/sudoers.d/lsda
+
+# Ensure that the above actually works.
+sudo su lsda sudo /bin/mount /mnt
+
+# Install requisite software.
 DEBIAN_FRONTEND=noninteractive apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y git python python-distribute \
@@ -23,14 +37,6 @@ mkdir -p /worker
 cd /worker
 git clone https://github.com/fatlotus/lsda-management.git .
 git clone https://github.com/fatlotus/lsda-data-access-layer.git dal
-
-# Allow lsda to jump into the sandbox.
-cat > /etc/sudoers.d/lsda <<EOF
-lsda ALL=(root) NOPASSWD: /worker/sandbox.py *
-lsda ALL=(root) NOPASSWD: /bin/chown lsda:lsda /mnt
-lsda ALL=(root) NOPASSWD: /bin/mount /mnt
-EOF
-chmod 0440 /etc/sudoers.d/lsda
 
 pip install -r /worker/requirements.txt
 pip install pyleargist # pyleargist depends on Cython to build.
