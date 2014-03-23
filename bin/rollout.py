@@ -92,7 +92,8 @@ def main():
         
     finally:
         logging.warn("Stopping all nodes.")
-        reservation.stop_all()
+        for node in reservation.instances:
+            node.terminate()
     
     logging.info("Creating new LaunchConfiguration.")
     
@@ -128,7 +129,7 @@ def main():
         if image.id != new_image:
             conn_ec2.deregister_image(image.id, True)
     
-    logging.info("Rollout complete.")
+    logging.info("Rollout complete. New image is {}.".format(new_image))
 
 if __name__ == '__main__':
     main()
