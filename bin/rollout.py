@@ -73,7 +73,7 @@ def main():
           "ubuntu@{}".format(instance.ip_address),
           "stop lsda;"
           "curl -O https://raw.github.com/fatlotus/lsda-infrastructure/"
-          "master/servers/worker.sh && sudo bash < ./worker.sh && stop lsda"])
+          "master/servers/worker.sh && sudo bash < ./worker.sh"])
         
         logging.info("Creating AMI from existing image.")
         new_image = instance.create_image(
