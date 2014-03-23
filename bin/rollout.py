@@ -71,8 +71,9 @@ def main():
         subprocess.check_call(["ssh", "-o", "UserKnownHostsFile=/dev/null",
           "-o", "StrictHostKeyChecking=no",
           "ubuntu@{}".format(instance.ip_address),
+          "stop lsda;"
           "curl -O https://raw.github.com/fatlotus/lsda-infrastructure/"
-          "master/servers/worker.sh && grep -v start <./worker.sh | sudo bash"])
+          "master/servers/worker.sh && sudo bash < ./worker.sh && stop lsda"])
         
         logging.info("Creating AMI from existing image.")
         new_image = instance.create_image(
