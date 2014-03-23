@@ -19,6 +19,7 @@ initLimit=10
 syncLimit=5
 dataDir=/var/lib/zookeeper
 clientPort=2181
+maxClientCnxns=0
 # server.1=zookeeper1:2888:3888
 # server.2=zookeeper2:2888:3888
 # server.3=zookeeper3:2888:3888
