@@ -81,6 +81,8 @@ start on startup
 setuid lsda
 setgid lsda
 
+limit nofile 16384 16384
+
 script
   python /worker/management.py \\
     --amqp=amqp.lsda.cs.uchicago.edu \\
