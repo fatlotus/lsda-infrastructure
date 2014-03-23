@@ -26,16 +26,20 @@ DEBIAN_FRONTEND=noninteractive apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y git python python-distribute \
   python-pip build-essential python-dev python-numpy python-scipy \
-  python-matplotlib python-pandas python-sympy libfftw3-dev python-matplotlib
+  python-matplotlib python-pandas python-sympy libfftw3-dev python-matplotlib \
+  libfreetype6-dev
 
 # Create worker environment.
 rm -rf /worker || true
 mkdir -p /worker
 cd /worker
 git clone https://github.com/fatlotus/lsda-management.git .
-git clone https://github.com/fatlotus/lsda-data-access-layer.git dal
 
 pip install -r /worker/requirements.txt
+pip install --upgrade --no-deps git+https://github.com/fatlotus/runipy.git
+pip install --upgrade --no-deps \
+  git+https://github.com/fatlotus/lsda-data-access-layer.git
+
 pip install pyleargist # pyleargist depends on Cython to build.
 chown -R lsda:lsda .
 chown lsda:lsda /mnt
