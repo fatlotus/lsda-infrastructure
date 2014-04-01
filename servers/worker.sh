@@ -1,12 +1,15 @@
 #!/bin/bash
 #
-# Installs ZooKeeper on this server.
+# Installs the worker node software on this node.
 #
 # Author: Jeremy Archer <jarcher@uchicago.edu>
 # Date: 9 December 2013.
 #
 
 set -e -x
+
+# Stop any existing worker nodes.
+stop lsda || true
 
 # Prepare system for install.
 useradd -m -r lsda || true
@@ -58,6 +61,9 @@ cat > /worker/dalconfig.json <<EOF
    "tinyimages": {
       "meta-bucket": "ml-tinyimages-metadata",
       "bucket": "ml-tinyimages"
+   },
+   "sou": {
+       "bucket": "ml-sou"
    },
    "cache": {
       "path": "./tmp",
