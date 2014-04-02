@@ -75,6 +75,10 @@ cat > /worker/dalconfig.json <<EOF
 }
 EOF
 
+if [ "x$CHANNEL" = "x" ]; then
+  CHANNEL=stable
+fi
+
 # Configure daemons
 cat > /etc/init/lsda.conf <<EOF
 description "Runs an Python LSDA Worker Process"
@@ -92,7 +96,8 @@ limit nofile 16384 16384
 script
   python /worker/management.py \\
     --amqp=amqp.lsda.cs.uchicago.edu \\
-    --zookeeper=zookeeper.lsda.cs.uchicago.edu
+    --zookeeper=zookeeper.lsda.cs.uchicago.edu \\
+    --queue=$CHANNEL
 end script
 EOF
 
