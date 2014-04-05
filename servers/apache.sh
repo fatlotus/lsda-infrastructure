@@ -37,12 +37,24 @@ Listen 0.0.0.0:1337
     AuthType Basic
     AuthName "CNetID"
     AuthLDAPURL "ldaps://ldap.uchicago.edu/ou=people,dc=uchicago,dc=edu?uid?one" STARTTLS
-    Require user jarcher cioc lafferty qinqing nseltzer diai akins abeinstein pblankenship ryanbober ajcarr chandarb xcheng14 rchi yjchoe ecleveland mcytrynbaum genevieve ellisjoe stephenf lynngarrett jharriman nhauke ghe1 marinahs ydlee avilevin anglipku junchi sarahli hallliu jplynch shailee mork murphyj natoli jnelson15 mattniedelman lukepeeler fpinter rbpuri jraihala trasmussen rifferreinert jrobertson51 robs ssapra zschaefer csexauer danielshank jialins steinitz tiany1 jtuchol vvora branwall haiwang kanixwang dmwelgus dawest jmweston exia ayang16 edyue nsauder
+    Require user jarcher cioc lafferty qinqing nseltzer diai akins abeinstein pblankenship ryanbober ajcarr chandarb xcheng14 rchi yjchoe ecleveland mcytrynbaum genevieve ellisjoe stephenf lynngarrett jharriman nhauke ghe1 marinahs ydlee avilevin anglipku junchi sarahli hallliu jplynch shailee mork murphyj natoli jnelson15 mattniedelman lukepeeler fpinter rbpuri jraihala trasmussen rifferreinert jrobertson51 robs ssapra zschaefer csexauer danielshank jialins steinitz tiany1 jtuchol vvora branwall haiwang kanixwang dmwelgus dawest jmweston exia ayang16 edyue nsauder sthaler sbenbenek bobni
   </Location>
   
   <Location /cgi-bin>
     Options ExecCGI
     AddHandler cgi-script .cgi
+  </Location>
+  
+  Alias /gitlist /var/gitlist
+  
+  <Location /gitlist>
+    Require user jarcher
+    Options +FollowSymLinks +SymLinksIfOwnerMatch
+    
+    RewriteEngine On
+    RewriteBase /gitlist
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]
   </Location>
 </VirtualHost>
 
