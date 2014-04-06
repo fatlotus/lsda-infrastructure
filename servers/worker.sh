@@ -30,7 +30,7 @@ DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y git python python-distribute \
   python-pip build-essential python-dev python-numpy python-scipy \
   python-matplotlib python-pandas python-sympy libfftw3-dev python-matplotlib \
-  libfreetype6-dev
+  libfreetype6-dev mdadm btrfs-tools
 
 # Create worker environment.
 rm -rf /worker || true
@@ -89,7 +89,7 @@ author "Jeremy Archer <jarcher@uchicago.edu>"
 
 respawn
 
-start on startup
+start on stopping mnt-fixer 
 
 setuid lsda
 setgid lsda
@@ -101,6 +101,21 @@ script
     --amqp=amqp.lsda.cs.uchicago.edu \\
     --zookeeper=zookeeper.lsda.cs.uchicago.edu \\
     --queue=$CHANNEL
+end script
+EOF
+
+cat > /etc/init/mnt-fixer.conf <<EOF
+description "Ensures that RAID0 is properly configured on boot."
+author "Jeremy Archer <jarcher@uchicago.edu>"
+
+start on startup
+
+script
+  if [ -b /dev/xvdc ]; then
+    umount /mnt || true
+    mkfs.btrfs -d raid0 /dev/xvdb /dev/xvdc
+    mount -t btrfs /dev/xvdb /mnt
+  fi
 end script
 EOF
 

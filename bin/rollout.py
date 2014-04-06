@@ -100,14 +100,15 @@ def main():
     
     mapping = BlockDeviceMapping()
     mapping["/dev/sdb"] = BlockDeviceType(ephemeral_name = "ephemeral0")
+    mapping["/dev/sdc"] = BlockDeviceType(ephemeral_name = "ephemeral1")
     
     new_launch_config = LaunchConfiguration(
         conn_ec2_as,
-        name = ('$0.06d / Small / Latest-{:%Y-%m-%d--%H-%M-%S}'.
+        name = ('$0.06d / C3Large / Latest-{:%Y-%m-%d--%H-%M-%S}'.
           format(datetime.datetime.now())),
         image_id = new_image,
         security_groups = ['sg-f9a08492'],
-        instance_type = 'm1.small',
+        instance_type = 'c3.large',
         block_device_mappings = [mapping],
         instance_profile_name = ("arn:aws:iam::470084502640:instance-profile"
           "/dal-access")
