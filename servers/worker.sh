@@ -65,6 +65,9 @@ cat > /worker/dalconfig.json <<EOF
    "sou": {
        "bucket": "ml-sou"
    },
+   "genomes": {
+       "bucket": "ml-genomics"
+   },
    "cache": {
       "path": "./tmp",
       "size": "unused"
