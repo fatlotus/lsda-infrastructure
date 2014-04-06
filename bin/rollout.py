@@ -120,10 +120,9 @@ def main():
     group.update()
     
     logging.info("Cleaning up old launch configurations.")
-    for config in conn_ec2_as.get_all_launch_configurations(names=["Latest"]):
-        print(config.name)
+    for config in conn_ec2_as.get_all_launch_configurations():
         if config.image_id != new_launch_config.image_id:
-            config.delete()
+            conn_ec2_as.delete_launch_configuration(config.name)
     
     logging.info("Cleaning up old images.")
     for image in conn_ec2.get_all_images(filters={"name":["LatestImage"]}):
