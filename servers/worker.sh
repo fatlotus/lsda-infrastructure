@@ -108,15 +108,18 @@ cat > /etc/init/mnt-fixer.conf <<EOF
 description "Ensures that RAID0 is properly configured on boot."
 author "Jeremy Archer <jarcher@uchicago.edu>"
 
-start on startup
+start on filename
 
 script
   if [ -b /dev/xvdc ]; then
     umount /mnt || true
     mkfs.btrfs -d raid0 /dev/xvdb /dev/xvdc
-    mount -t btrfs /dev/xvdb /mnt
+    mount -o compress -t btrfs /dev/xvdb /mnt
+    chown -R lsda:lsda /mnt
+    chmod 0755 /mnt
   fi
 end script
 EOF
 
-restart lsda || start lsda
+stop lsda || true
+start mnt-fixer
