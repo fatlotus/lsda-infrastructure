@@ -131,6 +131,9 @@ def main():
             conn_ec2.deregister_image(image.id, True)
     
     logging.info("Rollout complete. New image is {}.".format(new_image))
+    
+    logging.info("Triggering reload of all nodes in ASG.")
+    group.shutdown_instances()
 
 if __name__ == '__main__':
     main()

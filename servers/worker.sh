@@ -115,8 +115,7 @@ cat > /etc/init/mnt-fixer.conf <<EOF
 description "Ensures that RAID0 is properly configured on boot."
 author "Jeremy Archer <jarcher@uchicago.edu>"
 
-respawn
-start on filename
+start on filesystem
 
 script
   if [ -b /dev/xvdc ]; then
