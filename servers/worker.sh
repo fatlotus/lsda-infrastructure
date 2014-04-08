@@ -43,6 +43,13 @@ pip install --upgrade --no-deps git+https://github.com/fatlotus/runipy.git
 pip install --upgrade --no-deps \
   git+https://github.com/fatlotus/lsda-data-access-layer.git
 
+easy_install -U distribute
+
+pip install git+https://github.com/fatlotus/matplotlib.git
+pip install --upgrade --no-deps \
+  git+https://github.com/fatlotus/matplotlib.git
+
+
 pip install pyleargist # pyleargist depends on Cython to build.
 chown -R lsda:lsda .
 chown lsda:lsda /mnt
@@ -108,6 +115,7 @@ cat > /etc/init/mnt-fixer.conf <<EOF
 description "Ensures that RAID0 is properly configured on boot."
 author "Jeremy Archer <jarcher@uchicago.edu>"
 
+respawn
 start on filename
 
 script
