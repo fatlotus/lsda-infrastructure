@@ -43,7 +43,7 @@ pip install --upgrade --no-deps git+https://github.com/fatlotus/runipy.git
 pip install --upgrade --no-deps \
   git+https://github.com/fatlotus/lsda-data-access-layer.git
 
-easy_install -U distribute
+pip install -U distribute
 
 pip install git+https://github.com/fatlotus/matplotlib.git
 pip install --upgrade --no-deps \
