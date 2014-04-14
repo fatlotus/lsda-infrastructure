@@ -72,6 +72,9 @@ cat > /worker/dalconfig.json <<EOF
    "sou": {
        "bucket": "ml-sou"
    },
+   "digits": {
+       "bucket": "ml-digits"
+   },
    "genomes": {
        "bucket": "ml-genomics"
    },
