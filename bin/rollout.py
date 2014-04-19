@@ -133,8 +133,8 @@ def main():
     logging.info("Rollout complete. New image is {}.".format(new_image))
     
     logging.info("Triggering reload of all nodes in ASG.")
-    for instance_id in group.instances:
-        for reservation in conn_ec2.get_all_instances(instance_id):
+    for instance in group.instances:
+        for reservation in conn_ec2.get_all_instances(instance.instance_id):
             reservation.stop_all()
 
 if __name__ == '__main__':
