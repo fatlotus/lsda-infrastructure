@@ -50,10 +50,9 @@ Listen 0.0.0.0:1337
     AddHandler cgi-script .cgi
   </Location>
   
-  Alias /gitlist /var/gitlist
+  Alias /gitlist /opt/gitlist
   
   <Location /gitlist>
-    Require user jarcher
     Options +FollowSymLinks +SymLinksIfOwnerMatch
     
     RewriteEngine On
@@ -70,17 +69,6 @@ Listen 0.0.0.0:1337
   AddHandler cgi-script .cgi
 </VirtualHost>
 EOF
-
-# Alias /grading /var/gitlist
-# 
-# <Location /grading>
-#   Require user jarcher lafferty
-#   Options +FollowSymLinks +SymLinksIfOwnerMatch
-#   
-#   RewriteEngine on
-#   RewriteCond %{REQUEST_FILENAME} !-f
-#   RewriteRule ^(.*)$ index.php
-# </Location>
 
 # Configure LDAP.
 cat > /etc/ldap.conf <<EOF

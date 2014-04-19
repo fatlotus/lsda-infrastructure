@@ -22,10 +22,9 @@ git clone https://github.com/fatlotus/lsda-management.git
 pip install -r lsda-management/submitter_requrements.txt 2>/dev/null
 
 # Install Gitlist
-rm -rf /var/gitlist || true
-wget https://s3.amazonaws.com/gitlist/gitlist-0.4.0.tar.gz
-tar xvf gitlist-0.4.0.tar.gz -C /var
-cat > /var/gitlist/config.ini <<EOF
+rm -rf /opt/gitlist || true
+git clone https://github.com/fatlotus/gitlist.git /opt/gitlist
+cat > /opt/gitlist/config.ini <<EOF
 [git]
 client = '/usr/bin/git';
 default_branch = 'master';
@@ -40,7 +39,7 @@ timezone = CST
 EOF
 
 # Ensure that Gitlist works in a subdirectory.
-cat > /var/gitlist/.htaccess <<EOF
+cat > /opt/gitlist/.htaccess <<EOF
 
 <Files config.ini>
   Order Allow,Deny
@@ -48,10 +47,13 @@ cat > /var/gitlist/.htaccess <<EOF
 </Files>
 
 EOF
-mkdir -p /var/gitlist/cache
-chown git:git /var/gitlist/cache
-chmod 0777 /var/gitlist/cache
-rm gitlist-0.4.0.tar.gz
+mkdir -p /opt/gitlist/cache
+chown git:git /opt/gitlist/cache
+chmod 0777 /opt/gitlist/cache
+
+cd /opt/gitlist
+curl -s http://getcomposer.org/installer | php
+php composer.phar install
 
 su - git <<EOF
 
