@@ -45,9 +45,9 @@ pip install --upgrade --no-deps \
 
 pip install -U distribute
 
-# pip install git+https://github.com/fatlotus/matplotlib.git
-# pip install --upgrade --no-deps \
-#   git+https://github.com/fatlotus/matplotlib.git
+pip install git+https://github.com/fatlotus/matplotlib.git
+pip install --upgrade --no-deps \
+  git+https://github.com/fatlotus/matplotlib.git
 
 
 pip install pyleargist # pyleargist depends on Cython to build.
