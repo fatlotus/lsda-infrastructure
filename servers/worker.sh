@@ -88,6 +88,13 @@ cat > /worker/dalconfig.json <<EOF
 }
 EOF
 
+cat >> /etc/sysctl.conf <<EOF
+net.ipv4.tcp_wmem = 4096 16384 512000
+net.ipv4.tcp_wmem = 4096 16384 512000
+EOF
+
+sysctl -p
+
 if [ "x$CHANNEL" = "x" ]; then
   CHANNEL=stable
 fi
