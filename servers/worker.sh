@@ -45,10 +45,11 @@ pip install --upgrade --no-deps \
 
 pip install -U distribute
 
-pip install git+https://github.com/fatlotus/matplotlib.git
-pip install --upgrade --no-deps \
-  git+https://github.com/fatlotus/matplotlib.git
-
+if [ "x$QUICK" = x ]; then
+  pip install git+https://github.com/fatlotus/matplotlib.git
+  pip install --upgrade --no-deps \
+    git+https://github.com/fatlotus/matplotlib.git
+fi
 
 pip install pyleargist # pyleargist depends on Cython to build.
 chown -R lsda:lsda .
@@ -88,7 +89,7 @@ cat > /worker/dalconfig.json <<EOF
 }
 EOF
 
-cat >> /etc/sysctl.conf <<EOF
+cat > /etc/sysctl.conf <<EOF
 net.ipv4.tcp_wmem = 4096 16384 512000
 net.ipv4.tcp_wmem = 4096 16384 512000
 EOF
