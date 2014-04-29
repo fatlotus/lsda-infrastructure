@@ -12,12 +12,25 @@ from boto.ec2.autoscale import AutoScaleConnection
 from boto.ec2.autoscale.launchconfig import LaunchConfiguration
 from boto.ec2.blockdevicemapping import BlockDeviceType, BlockDeviceMapping
 
-import logging, time, subprocess, time, traceback, random, datetime
+import logging, time, subprocess, time, traceback, random, datetime, argparse
 
 logging.basicConfig(level = logging.INFO,
   format = "%(asctime)-15s %(levelname)-5s %(message)s")
 
 def main():
+    parser = argparse.ArgumentParser(
+      description = "triggers a full LSDA rollout")
+    
+    parser.add_argument("--inspect", action = "store_true",
+      help = "pause before baking AMI", default = False)
+    parser.add_argument("--clean", action = "store_true",
+      help = "reset from clean Ubuntu 12.04 image", default = False)
+    parser.add_argument("--no-restart", action = "store_true",
+      dest = "no_restart", help = "don't restart all nodes in ASG",
+      default = False)
+    
+    options = parser.parse_args()
+    
     logging.info("Starting rollout.")
     
     conn_ec2 = boto.ec2.connect_to_region("us-east-1")
@@ -27,10 +40,12 @@ def main():
     existing_images = conn_ec2.get_all_images(owners = ["self"])
     
     ami_id = None
-    for image in existing_images:
-        if "Latest" in image.name and image.state == "available":
-            ami_id = image.id
-            break
+    
+    if not options.clean:
+        for image in existing_images:
+            if "Latest" in image.name and image.state == "available":
+                ami_id = image.id
+                break
     
     if ami_id is None:
         ami_id = 'ami-59a4a230' # Clean Ubuntu 12.04.
@@ -71,9 +86,20 @@ def main():
         subprocess.check_call(["ssh", "-o", "UserKnownHostsFile=/dev/null",
           "-o", "StrictHostKeyChecking=no",
           "ubuntu@{}".format(instance.ip_address),
-          "stop lsda;"
-          "curl -O https://raw.github.com/fatlotus/lsda-infrastructure/"
-          "master/servers/worker.sh && sudo bash < ./worker.sh"])
+          "sudo stop lsda; sleep 20; sudo rm worker.sh;"
+          "wget https://raw.github.com/fatlotus/lsda-infrastructure/"
+          "master/servers/worker.sh; sudo bash worker.sh"])
+        
+        if options.inspect:
+            logging.info("Connect to ubuntu@{} to inspect the image."
+              .format(instance.ip_address))
+            logging.info("When you're done, press CTRL-C.")
+            
+            try:
+                while True:
+                    time.sleep(3600)
+            except KeyboardInterrupt:
+                pass
         
         logging.info("Creating AMI from existing image.")
         new_image = instance.create_image(
@@ -132,11 +158,11 @@ def main():
     
     logging.info("Rollout complete. New image is {}.".format(new_image))
     
-    return False 
-    logging.info("Triggering reload of all nodes in ASG.")
-    for instance in group.instances:
-        for reservation in conn_ec2.get_all_instances(instance.instance_id):
-            reservation.stop_all()
+    if not options.no_restart:
+        logging.info("Triggering reload of all nodes in ASG.")
+        for instance in group.instances:
+            for reservation in conn_ec2.get_all_instances(instance.instance_id):
+                reservation.stop_all()
 
 if __name__ == '__main__':
     main()
