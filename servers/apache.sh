@@ -12,47 +12,37 @@ set -e -x
 DEBIAN_FRONTEND=noninteractive apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 \
   pwauth libapache2-mod-authnz-external libpam-ldap python-pip \
-  libapache2-mod-wsgi git-core
+  libapache2-mod-wsgi git-core nodejs pandoc nginx-extras
 
 # Configure Apache2.
-cat > /etc/apache2/httpd.conf <<EOF
+cat > /etc/apache2/ports.conf <<EOF
+Listen 0.0.0.0:8081
+EOF
+
+cat > /etc/apache2/sites-available/000-default.conf <<EOF
 LDAPTrustedGlobalCert CA_BASE64 /etc/ssl/certs/ca-certificates.crt
 User git
 
-Listen 0.0.0.0:1337
-
-<VirtualHost *:80>
-  ServerName lsda.cs.uchicago.edu
-  Redirect permanent / https://lsda.cs.uchicago.edu/
-</VirtualHost>
-
-<VirtualHost *:443>
-  SSLEngine on
-  SSLCertificateFile /etc/apache2/ssl/apache.crt
-  SSLCertificateKeyFile /etc/apache2/ssl/apache.key
-  ServerName lsda.cs.uchicago.edu
-  
+<VirtualHost *:8081>
   WSGIDaemonProcess myapplication
   WSGIScriptAlias / /control-panel/app.wsgi
   
   ScriptAlias /cgi-bin /var/www
   
-  <Location />
-    AuthBasicProvider ldap
-    AuthType Basic
-    AuthName "CNetID"
-    AuthLDAPURL "ldaps://ldap.uchicago.edu/ou=people,dc=uchicago,dc=edu?uid?one" STARTTLS
-    Require user jarcher cioc lafferty qinqing nseltzer diai akins abeinstein pblankenship ryanbober ajcarr chandarb xcheng14 rchi yjchoe ecleveland mcytrynbaum genevieve ellisjoe stephenf lynngarrett jharriman nhauke ghe1 marinahs ydlee avilevin anglipku junchi sarahli hallliu jplynch shailee mork murphyj natoli jnelson15 mattniedelman lukepeeler fpinter rbpuri jraihala trasmussen rifferreinert jrobertson51 robs ssapra zschaefer csexauer danielshank jialins steinitz tiany1 jtuchol vvora branwall haiwang kanixwang dmwelgus dawest jmweston exia ayang16 edyue nsauder sthaler sbenbenek bobni pailoor ywang18 turnersr giulianowrobel albertorios michaelliu62 undiscoveredlama ksercombe taburaad rogerfan
-  </Location>
-  
   <Location /cgi-bin>
     Options ExecCGI
     AddHandler cgi-script .cgi
+    Allow from all
   </Location>
   
   Alias /gitlist /opt/gitlist
   
+  <Directory /opt/gitlist>
+    Require all granted
+  </Directory>
+  
   <Location /gitlist>
+    Require all granted
     Options +FollowSymLinks +SymLinksIfOwnerMatch
     
     RewriteEngine On
@@ -61,20 +51,113 @@ Listen 0.0.0.0:1337
     RewriteRule ^ index.php [QSA,L]
   </Location>
 </VirtualHost>
+EOF
 
-<VirtualHost *:1337>
-  DocumentRoot /home/git/repositories/
-  
-  Options ExecCGI
-  AddHandler cgi-script .cgi
-</VirtualHost>
+cat > /etc/nginx/sites-enabled/default <<EOF
+server {
+  listen 80;
+  rewrite (.*) https://$http_host$1 permanent;
+}
+
+server {
+  listen 443 ssl;
+  server_name lsda.cs.uchicago.edu;
+
+  ssl_certificate /etc/apache2/ssl/apache.crt;
+  ssl_certificate_key /etc/apache2/ssl/apache.key;
+
+  location / {
+    auth_pam "CNetID";
+    auth_pam_service_name "nginx";
+
+    proxy_pass http://127.0.0.1:8082;
+    proxy_set_header REMOTE_USER \$remote_user;
+  }
+
+  location /gitlist {
+    proxy_pass http://127.0.0.1:8081;
+    proxy_set_header REMOTE_USER \$remote_user;
+  }
+
+  location /cgi-bin {
+    proxy_pass http://127.0.0.1:8081;
+    proxy_set_header REMOTE_USER \$remote_user;
+  }
+}
+EOF
+
+cat > /etc/pam.d/nginx <<EOF
+auth required pam_listfile.so onerr=fail item=user sense=allow file=/etc/cnetids.txt
+auth required pam_ldap.so
+account required pam_ldap.so
+EOF
+
+cat > /etc/apache2/envvars <<EOF
+# envvars - default environment variables for apache2ctl
+
+# this won't be correct after changing uid
+unset HOME
+
+# for supporting multiple apache2 instances
+if [ "${APACHE_CONFDIR##/etc/apache2-}" != "${APACHE_CONFDIR}" ] ; then
+	SUFFIX="-${APACHE_CONFDIR##/etc/apache2-}"
+else
+	SUFFIX=
+fi
+
+# Since there is no sane way to get the parsed apache2 config in scripts, some
+# settings are defined via environment variables and then used in apache2ctl,
+# /etc/init.d/apache2, /etc/logrotate.d/apache2, etc.
+export APACHE_RUN_USER=git
+export APACHE_RUN_GROUP=git
+# temporary state file location. This might be changed to /run in Wheezy+1
+export APACHE_PID_FILE=/var/run/apache2/apache2$SUFFIX.pid
+export APACHE_RUN_DIR=/var/run/apache2$SUFFIX
+export APACHE_LOCK_DIR=/var/lock/apache2$SUFFIX
+# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
+export APACHE_LOG_DIR=/var/log/apache2$SUFFIX
+
+## The locale used by some modules like mod_dav
+export LANG=C
+## Uncomment the following line to use the system default locale instead:
+#. /etc/default/locale
+
+export LANG
+
+## The command to get the status for 'apache2ctl status'.
+## Some packages providing 'www-browser' need '--dump' instead of '-dump'.
+#export APACHE_LYNX='www-browser -dump'
+
+## If you need a higher file descriptor limit, uncomment and adjust the
+## following line (default is 8192):
+#APACHE_ULIMIT_MAX_FILES='ulimit -n 65536'
+
+## If you would like to pass arguments to the web server, add them below
+## to the APACHE_ARGUMENTS environment.
+#export APACHE_ARGUMENTS=''
+
+## Enable the debug mode for maintainer scripts.
+## This will produce a verbose output on package installations of web server modules and web application
+## installations which interact with Apache
+#export APACHE2_MAINTSCRIPT_DEBUG=1
 EOF
 
 # Configure LDAP.
-cat > /etc/ldap.conf <<EOF
+cat > /etc/ldap/ldap.conf <<EOF
 URI ldaps://ldap.uchicago.edu
 TLS_CACERT /etc/ssl/certs/ca-certificates.crt
-BASE dc=uchicago,dc=edu
+BASE ou=people,dc=uchicago,dc=edu
+EOF
+
+# Enable WSGI dameon.
+cat > /etc/init/wsgi.conf <<EOF
+start on startup
+respawn
+
+user git
+
+chdir /control-panel
+exec /usr/bin/env python /control-panel/daemon.py
 EOF
 
 # Configure self-signed SSL certificates
@@ -84,7 +167,8 @@ a2enmod rewrite
 
 mkdir -p /var/www
 
-curl https://raw.github.com/fatlotus/lsda-installation/master/generate-ssh-key.cgi > /var/www/generate-ssh-key.cgi
+cd /var/www
+wget https://raw.github.com/fatlotus/lsda-installation/master/generate-ssh-key.cgi
 chmod +x /var/www/generate-ssh-key.cgi
 
 # Configure the LSDA control panel.
@@ -93,3 +177,5 @@ git clone https://github.com/fatlotus/lsda-control-panel.git /control-panel
 pip install -r /control-panel/requirements.txt
 
 /etc/init.d/apache2 restart || /etc/init.d/apache2 start
+/etc/init.d/nginx restart || /etc/init.d/nginx start
+restart wsgi || start wsgi
