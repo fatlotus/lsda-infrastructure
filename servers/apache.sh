@@ -154,7 +154,7 @@ cat > /etc/init/wsgi.conf <<EOF
 start on startup
 respawn
 
-user git
+setuid git
 
 chdir /control-panel
 exec /usr/bin/env python /control-panel/daemon.py
