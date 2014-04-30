@@ -75,11 +75,17 @@ server {
   }
 
   location /gitlist {
+    auth_pam "CNetID";
+    auth_pam_service_name "nginx";
+
     proxy_pass http://127.0.0.1:8081;
     proxy_set_header REMOTE_USER \$remote_user;
   }
 
   location /cgi-bin {
+    auth_pam "CNetID";
+    auth_pam_service_name "nginx";
+
     proxy_pass http://127.0.0.1:8081;
     proxy_set_header REMOTE_USER \$remote_user;
   }
