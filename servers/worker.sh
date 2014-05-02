@@ -70,6 +70,9 @@ cat > /worker/dalconfig.json <<EOF
       "meta-bucket": "ml-tinyimages-metadata",
       "bucket": "ml-tinyimages"
    },
+   "wishes": {
+       "bucket": "ml-wishes"
+   },
    "sou": {
        "bucket": "ml-sou"
    },
