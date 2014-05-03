@@ -36,22 +36,21 @@ def main():
     conn_ec2 = boto.ec2.connect_to_region("us-east-1")
     conn_ec2_as = AutoScaleConnection()
     
-    logging.info("Searching for existing images...")
-    existing_images = conn_ec2.get_all_images(owners = ["self"])
-    
-    ami_id = None
-    
     if not options.clean:
-        for image in existing_images:
-            if "Latest" in image.name and image.state == "available":
-                ami_id = image.id
-                break
+        logging.info("Searching for existing images...")
+        
+        group = conn_ec2_as.get_all_groups(['LSDA Worker Pool'])[0]
+        launch_config = conn_ec2_as.get_all_launch_configurations(
+          names=[group.launch_config_name])[0]
+        
+        existing_images = conn_ec2.get_all_images(owners = ["self"])[0]
+        
+        ami_id = launch_config.image_id
+        logging.info("Using existing image {0}".format(ami_id))
     
-    if ami_id is None:
+    else:
         ami_id = 'ami-59a4a230' # Clean Ubuntu 12.04.
         logging.info("Using base image {0}".format(ami_id))
-    else:
-        logging.info("Using existing image {0}".format(ami_id))
     
     reservation = conn_ec2.run_instances(
         image_id = ami_id,
@@ -142,7 +141,6 @@ def main():
     conn_ec2_as.create_launch_configuration(new_launch_config)
     
     logging.info("Setting launch configuration in existing ASG.")
-    group = conn_ec2_as.get_all_groups(['LSDA Worker Pool'])[0]
     group.launch_config_name = new_launch_config.name
     group.update()
     
