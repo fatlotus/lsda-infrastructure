@@ -129,14 +129,15 @@ def main():
     
     new_launch_config = LaunchConfiguration(
         conn_ec2_as,
-        name = ('$0.06d / C3Large / Latest-{:%Y-%m-%d--%H-%M-%S}'.
+        name = ('Latest-{:%Y-%m-%d--%H-%M-%S}'.
           format(datetime.datetime.now())),
         image_id = new_image,
         security_groups = ['sg-f9a08492'],
         instance_type = 'c3.large',
         block_device_mappings = [mapping],
         instance_profile_name = ("arn:aws:iam::470084502640:instance-profile"
-          "/dal-access")
+          "/dal-access"),
+        spot_price = 0.1,
     )
     conn_ec2_as.create_launch_configuration(new_launch_config)
     
