@@ -137,7 +137,7 @@ def main():
         block_device_mappings = [mapping],
         instance_profile_name = ("arn:aws:iam::470084502640:instance-profile"
           "/dal-access"),
-        spot_price = 0.1,
+        spot_price = 0.02,
     )
     conn_ec2_as.create_launch_configuration(new_launch_config)
     
