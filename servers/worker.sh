@@ -19,6 +19,7 @@ useradd -m -r sandbox || true
 cat > /etc/sudoers.d/lsda <<EOF
 lsda ALL=(root) NOPASSWD: /worker/sandbox.py *
 lsda ALL=(root) NOPASSWD: /bin/chown lsda /mnt
+lsda ALL=(root) NOPASSWD: /bin/chmod 0777 /mnt
 lsda ALL=(root) NOPASSWD: /bin/mount /mnt
 lsda ALL=(root) NOPASSWD: /sbin/shutdown -h now
 EOF
